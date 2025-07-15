@@ -32,15 +32,15 @@ export const POST: APIRoute = async ({ request, locals }) => {
     } as any);
 
     if (!regenerationResponse.ok) {
-      throw new Error(
-        `Failed to regenerate llms.txt: ${await regenerationResponse.text()}`
-      );
+      const errorText = await regenerationResponse.text();
+      throw new Error(`Failed to regenerate llms.txt: ${errorText}`);
     }
 
-    // Forward the stream response from regenerateLlms
-    return new Response(regenerationResponse.body, {
+    // Get the JSON response and return it properly
+    const result = await regenerationResponse.json();
+    return new Response(JSON.stringify(result), {
       status: regenerationResponse.status,
-      headers: regenerationResponse.headers,
+      headers: { "Content-Type": "application/json" },
     });
   } catch (error) {
     console.error("Webhook Error:", error);

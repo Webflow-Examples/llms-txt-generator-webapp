@@ -218,7 +218,9 @@ function formatCollectionUrl(name: string): string {
 }
 
 export const GET: APIRoute = async ({ locals }) => {
-  const domain = import.meta.env.DOMAIN;
+  const domain = import.meta.env.PROD
+    ? (locals as any).runtime.env.DOMAIN
+    : import.meta.env.DOMAIN;
   const basePath = import.meta.env.BASE_URL;
   const siteId = import.meta.env.PROD
     ? (locals as any).runtime.env.WEBFLOW_SITE_ID

@@ -1,6 +1,8 @@
 import type { APIRoute } from "astro";
 
 export const GET: APIRoute = async ({ locals }) => {
+  const encoder = new TextEncoder();
+
   const stream = new ReadableStream({
     async start(controller) {
       let lastProgress = null;
@@ -9,9 +11,8 @@ export const GET: APIRoute = async ({ locals }) => {
           "llms-progress"
         );
         if (progress !== lastProgress) {
-          controller.enqueue(
-            `data: ${JSON.stringify({ message: progress })}\n\n`
-          );
+          const message = `data: ${JSON.stringify({ message: progress })}\n\n`;
+          controller.enqueue(encoder.encode(message));
           lastProgress = progress;
         }
         if (
