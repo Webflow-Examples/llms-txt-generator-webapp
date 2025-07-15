@@ -16,8 +16,12 @@ export const POST: APIRoute = async ({ locals, request }) => {
       "Initializing..."
     );
     // Create initial content
-    const siteId = (locals as any).runtime.env.WEBFLOW_SITE_ID;
-    const accessToken = (locals as any).runtime.env.WEBFLOW_SITE_API_TOKEN;
+    const siteId = import.meta.env.PROD
+      ? (locals as any).runtime.env.WEBFLOW_SITE_ID
+      : import.meta.env.PUBLIC_WEBFLOW_SITE_ID;
+    const accessToken = import.meta.env.PROD
+      ? (locals as any).runtime.env.WEBFLOW_SITE_API_TOKEN
+      : import.meta.env.WEBFLOW_SITE_API_TOKEN;
     const webflow = createWebflowClient(accessToken);
     const sites = await webflow.sites.list();
     const site = sites?.sites?.find((s: any) => s.id === siteId);

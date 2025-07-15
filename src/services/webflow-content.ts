@@ -214,8 +214,12 @@ export const processWebflowPage = async (
   locals: any // Accept any, or type as { runtime: { env: ... } }
 ): Promise<ProcessedPage> => {
   // Get env and create client
-  const siteId = (locals as any).runtime.env.WEBFLOW_SITE_ID;
-  const accessToken = (locals as any).runtime.env.WEBFLOW_SITE_API_TOKEN;
+  const siteId = import.meta.env.PROD
+    ? (locals as any).runtime.env.WEBFLOW_SITE_ID
+    : import.meta.env.PUBLIC_WEBFLOW_SITE_ID;
+  const accessToken = import.meta.env.PROD
+    ? (locals as any).runtime.env.WEBFLOW_SITE_API_TOKEN
+    : import.meta.env.WEBFLOW_SITE_API_TOKEN;
   const webflowClient = createWebflowClient(accessToken);
   const webflowContent = (locals as any).webflowContent;
   const basePath = import.meta.env.BASE_URL;

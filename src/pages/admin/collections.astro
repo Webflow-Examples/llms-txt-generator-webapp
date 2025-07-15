@@ -5,12 +5,12 @@ import { fetchCollections } from '../../utils/webflow/collections';
 import { createWebflowClient } from '../../utils/webflow/client';
 
 // Get all collections
-const siteId = (Astro.locals as any).runtime.env.WEBFLOW_SITE_ID;
+const siteId = import.meta.env.PROD ? (Astro.locals as any).runtime.env.WEBFLOW_SITE_ID : import.meta.env.PUBLIC_WEBFLOW_SITE_ID;
 if (!siteId) {
   throw new Error("WEBFLOW_SITE_ID is not defined");
 }
 
-const webflowToken = (Astro.locals as any).runtime.env.WEBFLOW_API_TOKEN;
+const webflowToken = import.meta.env.PROD ? (Astro.locals as any).runtime.env.WEBFLOW_API_TOKEN : import.meta.env.PUBLIC_WEBFLOW_SITE_API_TOKEN;
 if (!webflowToken) {
   throw new Error("WEBFLOW_API_TOKEN is not defined");
 }

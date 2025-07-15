@@ -3,7 +3,9 @@ import { createWebflowClient } from "../../../utils/webflow/client";
 import { fetchCollectionSchema } from "../../../utils/webflow/collections";
 
 export const GET: APIRoute = async ({ request, locals }) => {
-  const accessToken = (locals as any).runtime.env.WEBFLOW_SITE_API_TOKEN;
+  const accessToken = import.meta.env.PROD
+    ? (locals as any).runtime.env.WEBFLOW_SITE_API_TOKEN
+    : import.meta.env.WEBFLOW_SITE_API_TOKEN;
   if (!accessToken) {
     return new Response("Missing Webflow API token", { status: 500 });
   }

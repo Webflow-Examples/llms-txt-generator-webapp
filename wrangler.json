@@ -14,17 +14,11 @@
   "kv_namespaces": [
     {
       "binding": "WEBFLOW_CONTENT",
-      "id": "8e83a86e33b541338700795162251e43",
-      "preview_id": "379f5c791fbf4167800d59dbd9cb24ae"
+      "id": "1234"
     },
     {
       "binding": "EXPOSURE_SETTINGS",
-      "id": "0844868cc396461bad48e8a120f16f27",
-      "preview_id": "806dc7b8d07c41b4885dd47437e86363"
+      "id": "1234"
     }
-  ],
-  "vars": {
-    "WEBFLOW_SITE_ID": "67e5a733a1619cd1ee3bec04",
-    "WEBFLOW_SITE_API_TOKEN": "b4dab61443fafd4c722bd3bd7aa4e30e8012bf99d6cd14033a318df1a3f72abf"
-  }
+  ]
 }
