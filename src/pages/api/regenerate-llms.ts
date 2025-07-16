@@ -2,27 +2,27 @@ import type { APIRoute } from "astro";
 import { GET as getCollections } from "./collections";
 import { GET as getPages } from "./pages";
 import { createWebflowClient } from "../../utils/webflow/client";
-import type { ProcessedPage } from "../../types";
 import { loadExposureSettings } from "../../utils/collection-exposure";
 
-export const POST: APIRoute = async ({ locals, request }) => {
+async function regenerateLLMS(locals: any, request: Request) {
+  // Get bindings and env from locals
+  const webflowContent = (locals as any).runtime.env.WEBFLOW_CONTENT;
+  const exposureSettings = (locals as any).runtime.env.EXPOSURE_SETTINGS;
+  const env = (locals as any).runtime?.env || {};
   try {
-    // Set a flag to indicate regeneration is in progress
-    await (locals as any).webflowContent.put("llms-regenerating", "true");
-    // Start the regeneration process synchronously
-    await loadExposureSettings((locals as any).exposureSettings);
-    await (locals as any).webflowContent.put(
-      "llms-progress",
-      "Initializing..."
-    );
-    // Create initial content
-    const siteId = import.meta.env.PROD
-      ? (locals as any).runtime.env.WEBFLOW_SITE_ID
-      : import.meta.env.WEBFLOW_SITE_ID;
-    const accessToken = import.meta.env.PROD
-      ? (locals as any).runtime.env.WEBFLOW_SITE_API_TOKEN
-      : import.meta.env.WEBFLOW_SITE_API_TOKEN;
+    // Set initial state
+    await webflowContent.put("llms-regenerating", "true");
+    await webflowContent.put("llms-progress", "Initializing...");
+
+    // Load exposure settings
+    await loadExposureSettings(exposureSettings);
+
+    // Get site ID and access token
+    const siteId = env.WEBFLOW_SITE_ID;
+    const accessToken = env.WEBFLOW_SITE_API_TOKEN;
     const webflow = createWebflowClient(accessToken);
+
+    // Get site and initial content
     const sites = await webflow.sites.list();
     const site = sites?.sites?.find((s: any) => s.id === siteId);
     const initialContent = [
@@ -39,41 +39,52 @@ export const POST: APIRoute = async ({ locals, request }) => {
       "- Content is updated whenever changes are published in Webflow",
       "",
     ].join("\n");
-    await (locals as any).webflowContent.put("llms.txt", initialContent);
-    await (locals as any).webflowContent.put(
-      "llms-progress",
-      "Fetching collections..."
-    );
+    await webflowContent.put("llms.txt", initialContent);
+
+    // Fetch collections
+    await webflowContent.put("llms-progress", "Fetching collections...");
     const collectionsResponse = await getCollections({
       locals,
       request,
       url: new URL(request.url),
     } as any);
     if (!collectionsResponse.ok) throw new Error("Collections endpoint failed");
-    await (locals as any).webflowContent.put(
-      "llms-progress",
-      "Fetching pages..."
-    );
+
+    // Fetch pages
+    await webflowContent.put("llms-progress", "Fetching pages...");
     const pagesResponse = await getPages({
       locals,
       request,
       url: new URL(request.url),
     } as any);
     if (!pagesResponse.ok) throw new Error("Pages endpoint failed");
-    await (locals as any).webflowContent.put("llms-progress", "Finalizing...");
-    await (locals as any).webflowContent.put("llms-progress", "done");
-    await (locals as any).webflowContent.put("llms-regenerating", "false");
-    return new Response(JSON.stringify({ success: true }), {
-      status: 200,
-      headers: { "Content-Type": "application/json" },
-    });
+
+    // Finalize
+    await webflowContent.put("llms-progress", "Finalizing...");
+    await webflowContent.put("llms-progress", "done");
+    await webflowContent.put("llms-regenerating", "false");
   } catch (error) {
-    return new Response(
-      JSON.stringify({
-        success: false,
-        error: error instanceof Error ? error.message : "Unknown error",
-      }),
-      { status: 500, headers: { "Content-Type": "application/json" } }
+    // Handle error
+    console.error("error", error);
+    await webflowContent.put("llms-regenerating", "false");
+    await webflowContent.put(
+      "llms-progress",
+      error instanceof Error
+        ? `error: ${error.message}`
+        : "error: Unknown error"
     );
   }
+}
+
+export const POST: APIRoute = async ({ locals, request, context }: any) => {
+  if (context && typeof context.waitUntil === "function") {
+    context.waitUntil(regenerateLLMS(locals, request));
+  } else {
+    console.log("no waitUntil");
+    regenerateLLMS(locals, request);
+  }
+  return new Response(JSON.stringify({ started: true }), {
+    status: 202,
+    headers: { "Content-Type": "application/json" },
+  });
 };
