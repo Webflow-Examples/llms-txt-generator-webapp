@@ -228,9 +228,11 @@ export const processWebflowPage = async (
   if (!accessToken) throw new Error("WEBFLOW_SITE_API_TOKEN is not defined");
 
   // Get components list from cache
-  const components = await fetchComponents(webflowClient, siteId, {
-    webflowContent,
-  });
+  const components = await fetchComponents(
+    webflowClient,
+    siteId,
+    webflowContent
+  );
   if (!components) throw new Error("Components list not found in cache");
 
   // Get page content from cache

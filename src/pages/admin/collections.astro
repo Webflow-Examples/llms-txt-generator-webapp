@@ -5,12 +5,13 @@ import { fetchCollections } from '../../utils/webflow/collections';
 import { createWebflowClient } from '../../utils/webflow/client';
 
 // Get all collections
-const siteId = import.meta.env.PROD ? (Astro.locals as any).runtime.env.WEBFLOW_SITE_ID : import.meta.env.WEBFLOW_SITE_ID;
+const locals = Astro.locals as any;
+const siteId = import.meta.env.PROD ? locals.runtime.env.WEBFLOW_SITE_ID : import.meta.env.WEBFLOW_SITE_ID;
 if (!siteId) {
   throw new Error("WEBFLOW_SITE_ID is not defined");
 }
 
-const webflowToken = import.meta.env.PROD ? (Astro.locals as any).runtime.env.WEBFLOW_SITE_API_TOKEN : import.meta.env.WEBFLOW_SITE_API_TOKEN;
+const webflowToken = import.meta.env.PROD ? locals.runtime.env.WEBFLOW_SITE_API_TOKEN : import.meta.env.WEBFLOW_SITE_API_TOKEN;
 if (!webflowToken) {
   throw new Error("WEBFLOW_SITE_API_TOKEN is not defined");
 }
@@ -19,7 +20,7 @@ const client = createWebflowClient(webflowToken);
 const collections = await fetchCollections(client, siteId);
 
 // Get current exposure settings from KV and ensure it's parsed
-const rawSettings = await (Astro.locals as any).exposureSettings.get('settings');
+const rawSettings = await locals.exposureSettings.get('settings');
 const exposureSettings = {
   collections: typeof rawSettings === 'string' 
     ? (JSON.parse(rawSettings) as { collections: Record<string, any> }).collections || {}

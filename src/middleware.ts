@@ -19,20 +19,14 @@ export const onRequest: MiddlewareHandler = defineMiddleware(
         console.log("[PROD ASSET REQUEST]", url);
       }
     }
+
+    const locals = context.locals as any;
     if (import.meta.env.DEV) {
-      (context.locals as any).webflowContent = (
-        context as any
-      ).locals.runtime.env.WEBFLOW_CONTENT;
-      (context.locals as any).exposureSettings = (
-        context as any
-      ).locals.runtime.env.EXPOSURE_SETTINGS;
+      locals.webflowContent = locals.runtime.env.WEBFLOW_CONTENT;
+      locals.exposureSettings = locals.runtime.env.EXPOSURE_SETTINGS;
     } else {
-      (context.locals as any).webflowContent = (
-        context as any
-      ).locals.runtime.env.WEBFLOW_CONTENT;
-      (context.locals as any).exposureSettings = (
-        context as any
-      ).locals.runtime.env.EXPOSURE_SETTINGS;
+      locals.webflowContent = locals.runtime.env.WEBFLOW_CONTENT;
+      locals.exposureSettings = locals.runtime.env.EXPOSURE_SETTINGS;
     }
     return next();
   }

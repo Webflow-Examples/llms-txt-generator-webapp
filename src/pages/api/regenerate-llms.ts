@@ -6,9 +6,9 @@ import { loadExposureSettings } from "../../utils/collection-exposure";
 
 async function regenerateLLMS(locals: any, request: Request) {
   // Get bindings and env from locals
-  const webflowContent = (locals as any).runtime.env.WEBFLOW_CONTENT;
-  const exposureSettings = (locals as any).runtime.env.EXPOSURE_SETTINGS;
-  const env = (locals as any).runtime?.env || {};
+  const webflowContent = locals.runtime.env.WEBFLOW_CONTENT;
+  const exposureSettings = locals.runtime.env.EXPOSURE_SETTINGS;
+  const env = locals.runtime?.env || {};
   try {
     // Set initial state
     await webflowContent.put("llms-regenerating", "true");

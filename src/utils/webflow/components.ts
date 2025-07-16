@@ -76,14 +76,17 @@ export const initializeComponentsCache = async (
     const response = await fetchComponentsWithRetry(webflowClient, siteId);
     componentsCache[siteId] = response;
 
+    const env = (locals as any).runtime.env;
+    const webflowContent = env.WEBFLOW_CONTENT;
+
     // Store in persistent cache if available
-    if (locals?.webflowContent) {
+    if (webflowContent) {
       const cacheKey = `components:${siteId}`;
       const cacheData = {
         data: response,
         timestamp: Date.now(),
       };
-      await locals.webflowContent.put(cacheKey, JSON.stringify(cacheData));
+      await webflowContent.put(cacheKey, JSON.stringify(cacheData));
       console.log("Successfully stored components in persistent cache");
 
       // Initialize component content cache
@@ -91,7 +94,7 @@ export const initializeComponentsCache = async (
       const components = response?.components || [];
       for (const component of components) {
         const contentCacheKey = `component-content:${siteId}:${component.id}`;
-        const cachedContent = await locals.webflowContent.get(contentCacheKey);
+        const cachedContent = await webflowContent.get(contentCacheKey);
         if (cachedContent) {
           const parsedCache = JSON.parse(cachedContent);
           if (isValidCache(parsedCache)) {
@@ -118,18 +121,18 @@ export const initializeComponentsCache = async (
 export const fetchComponents = async (
   webflowClient: any,
   siteId: string,
+  webflowContent: MinimalKV,
   locals?: LocalsWithKV
 ) => {
   if (import.meta.env.DEV)
     console.log("[Components] Debug Info:", {
       siteId,
-      hasLocals: !!locals,
-      hasWebflowContent: !!locals?.webflowContent,
-      webflowContentType: locals?.webflowContent
-        ? typeof locals.webflowContent
-        : "undefined",
+      hasLocals: !!locals?,
+      hasWebflowContent: !!webflowContent,
+      webflowContentType: webflowContent ? typeof webflowContent : "undefined",
       hasMemoryCache: !!componentsCache[siteId],
     });
+  console.log("Checked environment variables");
 
   // Check memory cache first
   if (componentsCache[siteId]) {
@@ -138,11 +141,11 @@ export const fetchComponents = async (
   }
 
   // Check persistent cache
-  if (locals?.webflowContent) {
+  if (webflowContent) {
     const cacheKey = `components:${siteId}`;
     try {
       console.log("[Components] Checking persistent cache:", { cacheKey });
-      const cached = await locals.webflowContent.get(cacheKey);
+      const cached = await webflowContent.get(cacheKey);
       console.log("[Components] Persistent cache result:", {
         hasCached: !!cached,
         cachedType: typeof cached,
@@ -178,6 +181,9 @@ export const fetchComponentContentWithCache = async (
   componentId: string,
   locals?: LocalsWithKV
 ): Promise<WebflowNode[]> => {
+  const env = (locals as any).runtime.env;
+  const webflowContent = env.WEBFLOW_CONTENT;
+
   // Check memory cache first
   const cached = componentContentCache[componentId];
   if (cached && Date.now() - cached.timestamp < CACHE_TTL * 1000) {
@@ -185,7 +191,7 @@ export const fetchComponentContentWithCache = async (
     return cached.data;
   }
 
-  if (!locals?.webflowContent) {
+  if (!webflowContent) {
     throw new Error("KV storage required for component caching");
   }
 
@@ -193,7 +199,7 @@ export const fetchComponentContentWithCache = async (
 
   try {
     // Try to get from KV cache
-    const kvCached = await locals.webflowContent.get(cacheKey);
+    const kvCached = await webflowContent.get(cacheKey);
     if (kvCached) {
       const parsedCache = JSON.parse(kvCached);
       if (isValidCache(parsedCache)) {
@@ -226,7 +232,7 @@ export const fetchComponentContentWithCache = async (
       data: content,
       timestamp,
     };
-    await locals.webflowContent.put(cacheKey, JSON.stringify(cacheData));
+    await webflowContent.put(cacheKey, JSON.stringify(cacheData));
     console.log(`Cached component ${componentId} content`);
 
     return content;
@@ -350,6 +356,10 @@ export const fetchImageAssetWithCache = async (
   assetId: string,
   locals?: { webflowContent: MinimalKV }
 ): Promise<string | null> => {
+  // Get the Webflow content KV from the locals
+  const env = (locals as any).runtime.env;
+  const webflowContent = env.WEBFLOW_CONTENT;
+
   // Check memory cache first
   if (imageAssetsCache[assetId]) {
     const cached = imageAssetsCache[assetId];
@@ -363,9 +373,9 @@ export const fetchImageAssetWithCache = async (
   }
 
   // Check KV cache
-  if (locals?.webflowContent) {
+  if (webflowContent) {
     const cacheKey = `image-asset:${assetId}`;
-    const cached = await locals.webflowContent.get(cacheKey);
+    const cached = await webflowContent.get(cacheKey);
     if (cached) {
       const parsedCache = JSON.parse(cached);
       if (
@@ -403,9 +413,9 @@ export const fetchImageAssetWithCache = async (
       };
 
       // Store in KV cache
-      if (locals?.webflowContent) {
+      if (webflowContent) {
         const cacheKey = `image-asset:${assetId}`;
-        await locals.webflowContent.put(
+        await webflowContent.put(
           cacheKey,
           JSON.stringify(imageAssetsCache[assetId])
         );
@@ -429,11 +439,14 @@ export const fetchAllAssetsWithCache = async (
   siteId: string,
   locals?: { webflowContent: MinimalKV }
 ): Promise<void> => {
+  const env = (locals as any).runtime.env;
+  const webflowContent = env.WEBFLOW_CONTENT;
+
   const cacheKey = `assets:${siteId}`;
 
   // Check KV cache first
-  if (locals?.webflowContent) {
-    const cached = await locals.webflowContent.get(cacheKey);
+  if (webflowContent) {
+    const cached = await webflowContent.get(cacheKey);
     if (cached) {
       const parsedCache = JSON.parse(cached);
       if (
@@ -481,8 +494,8 @@ export const fetchAllAssetsWithCache = async (
     }
 
     // Store in KV cache
-    if (locals?.webflowContent) {
-      await locals.webflowContent.put(
+    if (webflowContent) {
+      await webflowContent.put(
         cacheKey,
         JSON.stringify({
           assets: assetsCache,
