@@ -55,6 +55,8 @@ import type { ExposureConfig } from "../../../types";
  */
 export const POST: APIRoute = async ({ request, locals }) => {
   try {
+    const env = (locals as any).runtime.env;
+    const exposureSettings = env.EXPOSURE_SETTINGS;
     const body = await request.json();
     const newCollections =
       body &&
@@ -64,19 +66,14 @@ export const POST: APIRoute = async ({ request, locals }) => {
         ? body.collections
         : body;
     // Load existing settings
-    const existingSettings = await (locals as any).exposureSettings.get(
-      "settings"
-    );
+    const existingSettings = await exposureSettings.get("settings");
     const settings = existingSettings
       ? JSON.parse(existingSettings)
       : { collections: {}, pages: {} };
     // Update collections only
     settings.collections = newCollections;
     // Save merged settings
-    await (locals as any).exposureSettings.put(
-      "settings",
-      JSON.stringify(settings)
-    );
+    await exposureSettings.put("settings", JSON.stringify(settings));
     return new Response(
       JSON.stringify({ success: true, message: "Settings saved successfully" }),
       {

@@ -176,8 +176,14 @@ const basePath = import.meta.env.BASE_URL;
 	function processEvents(eventText: string) {
 		try {
 			const data = JSON.parse(eventText) as { message?: string };
-			if (data.message) {
-				const stepIndex = STEPS.findIndex(s => s.message === data.message);
+			if (data && typeof data.message === 'string') {
+				// Try to match by exact message first
+				let stepIndex = STEPS.findIndex(s => s.message === data.message);
+				// If not found, try substring/partial match
+				if (stepIndex === -1) {
+					stepIndex = STEPS.findIndex(s => data.message && data.message.includes(s.message.split('...')[0]));
+				}
+				console.log('Progress event:', data.message, 'Matched step:', stepIndex);
 				if (stepIndex !== -1) {
 					currentStepIndex = stepIndex;
 					updateProgress();

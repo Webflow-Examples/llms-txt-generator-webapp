@@ -64,21 +64,32 @@ async function regenerateLLMS(locals: any, request: Request) {
     await webflowContent.put("llms-progress", "done");
     await webflowContent.put("llms-regenerating", "false");
   } catch (error) {
-    // Handle error
-    console.error("error", error);
+    console.error("regenerateLLMS error:", error);
     await webflowContent.put("llms-regenerating", "false");
     await webflowContent.put(
       "llms-progress",
       error instanceof Error
-        ? `error: ${error.message}`
+        ? `error: ${error.message}\n${error.stack}`
         : "error: Unknown error"
     );
   }
 }
 
-export const POST: APIRoute = async ({ locals, request, context }: any) => {
+export const POST: APIRoute = async ({ locals, request }: any) => {
+  // Access context from Cloudflare Workers
+
+  const context = locals.runtime.ctx;
   if (context && typeof context.waitUntil === "function") {
-    context.waitUntil(regenerateLLMS(locals, request));
+    // Run in background
+    context.waitUntil(
+      (async () => {
+        try {
+          await regenerateLLMS(locals, request);
+        } catch (err) {
+          console.error("Background task failed:", err);
+        }
+      })()
+    );
   } else {
     console.log("no waitUntil");
     regenerateLLMS(locals, request);

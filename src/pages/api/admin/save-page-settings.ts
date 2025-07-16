@@ -15,10 +15,11 @@ export const POST: APIRoute = async ({ request, locals }) => {
     const pageSettings = (await request.json()) as Record<string, PageConfig>;
     console.log("Incoming pageSettings:", pageSettings);
 
+    const env = (locals as any).runtime.env;
+    const exposureSettings = env.EXPOSURE_SETTINGS;
+
     // Load existing settings
-    const existingSettings = await (locals as any).exposureSettings.get(
-      "settings"
-    );
+    const existingSettings = await exposureSettings.get("settings");
     const settings = existingSettings
       ? JSON.parse(existingSettings)
       : { collections: {}, pages: {} };
@@ -28,10 +29,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
     console.log("Final settings to save:", settings);
 
     // Save merged settings
-    await (locals as any).exposureSettings.put(
-      "settings",
-      JSON.stringify(settings)
-    );
+    await exposureSettings.put("settings", JSON.stringify(settings));
 
     return new Response(JSON.stringify({ success: true }), {
       status: 200,
