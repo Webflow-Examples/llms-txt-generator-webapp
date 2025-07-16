@@ -127,7 +127,7 @@ export const fetchComponents = async (
   if (import.meta.env.DEV)
     console.log("[Components] Debug Info:", {
       siteId,
-      hasLocals: !!locals?,
+      hasLocals: !!locals,
       hasWebflowContent: !!webflowContent,
       webflowContentType: webflowContent ? typeof webflowContent : "undefined",
       hasMemoryCache: !!componentsCache[siteId],
