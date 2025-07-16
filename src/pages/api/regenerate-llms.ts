@@ -18,7 +18,7 @@ export const POST: APIRoute = async ({ locals, request }) => {
     // Create initial content
     const siteId = import.meta.env.PROD
       ? (locals as any).runtime.env.WEBFLOW_SITE_ID
-      : import.meta.env.PUBLIC_WEBFLOW_SITE_ID;
+      : import.meta.env.WEBFLOW_SITE_ID;
     const accessToken = import.meta.env.PROD
       ? (locals as any).runtime.env.WEBFLOW_SITE_API_TOKEN
       : import.meta.env.WEBFLOW_SITE_API_TOKEN;

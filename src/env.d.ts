@@ -34,7 +34,7 @@ declare namespace App {
 /// <reference types="@cloudflare/workers-types" />
 
 interface ImportMetaEnv {
-  readonly PUBLIC_WEBFLOW_SITE_ID: string;
+  readonly WEBFLOW_SITE_ID: string;
   readonly WEBFLOW_SITE_API_TOKEN: string;
   readonly BASE_URL: string;
 }

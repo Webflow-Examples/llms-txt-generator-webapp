@@ -13,12 +13,12 @@ import { updateLLMSSection } from "../../utils/kv-helpers";
 export const GET: APIRoute = async ({ url, locals }) => {
   const siteId = import.meta.env.PROD
     ? (locals as any).runtime.env.WEBFLOW_SITE_ID
-    : import.meta.env.PUBLIC_WEBFLOW_SITE_ID;
+    : import.meta.env.WEBFLOW_SITE_ID;
   const accessToken = import.meta.env.PROD
     ? (locals as any).runtime.env.WEBFLOW_SITE_API_TOKEN
     : import.meta.env.WEBFLOW_SITE_API_TOKEN;
   if (!siteId) throw new Error("WEBFLOW_SITE_ID is not defined");
-  if (!accessToken) throw new Error("WEBFLOW_API_TOKEN is not defined");
+  if (!accessToken) throw new Error("WEBFLOW_SITE_API_TOKEN is not defined");
 
   const webflowClient = createWebflowClient(accessToken);
   const webflowContent = (locals as any).webflowContent;

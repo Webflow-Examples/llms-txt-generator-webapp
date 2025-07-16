@@ -6,14 +6,14 @@ import { fetchAllPages } from '../../utils/webflow/pages';
 // import type { WebflowPage } from '../../types'; // Uncomment if you need the type
 
 // Get pages
-const siteId = import.meta.env.PROD ? (Astro.locals as any).runtime.env.WEBFLOW_SITE_ID : import.meta.env.PUBLIC_WEBFLOW_SITE_ID;
+const siteId = import.meta.env.PROD ? (Astro.locals as any).runtime.env.WEBFLOW_SITE_ID : import.meta.env.WEBFLOW_SITE_ID;
 if (!siteId) {
   throw new Error('WEBFLOW_SITE_ID is not defined');
 }
 
-const webflowToken = import.meta.env.PROD ? (Astro.locals as any).runtime.env.WEBFLOW_API_TOKEN : import.meta.env.PUBLIC_WEBFLOW_SITE_API_TOKEN;
+const webflowToken = import.meta.env.PROD ? (Astro.locals as any).runtime.env.WEBFLOW_SITE_API_TOKEN : import.meta.env.WEBFLOW_SITE_API_TOKEN;
 if (!webflowToken) {
-  throw new Error('WEBFLOW_API_TOKEN is not defined');
+  throw new Error('WEBFLOW_SITE_API_TOKEN is not defined');
 }
 
 const client = createWebflowClient(webflowToken);
