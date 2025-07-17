@@ -41,7 +41,7 @@ const basePath = import.meta.env.BASE_URL;
 				<div class="feature-card">
 					<h2>Content Preview</h2>
 					<p>View your generated documentation and verify the exposed content.</p>
-					<a href={`${basePath}/llms.txt`} target="_blank" class="button">View llms.txt</a>
+					<a href={`${basePath}/llms.txt`} target="_blank" class="button" id="viewLlmsBtn">View llms.txt</a>
 				</div>
 			</div>
 		</section>
@@ -199,6 +199,15 @@ const basePath = import.meta.env.BASE_URL;
 		const button = document.getElementById('regenerateBtn');
 		if (button) {
 			button.addEventListener('click', handleRegenerate);
+		}
+
+		const viewBtn = document.getElementById('viewLlmsBtn');
+		if (viewBtn) {
+			viewBtn.addEventListener('click', (e) => {
+				e.preventDefault();
+				const url = `${(viewBtn as HTMLAnchorElement).href}?t=${Date.now()}`;
+				window.open(url, '_blank');
+			});
 		}
 	});
 </script>
