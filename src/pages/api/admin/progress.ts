@@ -10,7 +10,15 @@ export const GET: APIRoute = async ({ locals }) => {
       let first = true;
       try {
         while (true) {
-          const progress = await webflowContent.get("llms-progress");
+          // List all progress keys
+          const list = await webflowContent.list({ prefix: "llms-progress:" });
+          const latestKey = list.keys
+            .map((k: any) => k.name)
+            .sort()
+            .reverse()[0]; // Most recent timestamp
+          const progress = latestKey
+            ? await webflowContent.get(latestKey)
+            : null;
           if (progress !== lastProgress || first) {
             const message = `data: ${JSON.stringify({
               message: progress,
@@ -42,7 +50,6 @@ export const GET: APIRoute = async ({ locals }) => {
       "Content-Type": "text/event-stream",
       "Cache-Control": "no-cache",
       Connection: "keep-alive",
-      // "Access-Control-Allow-Origin": "*", // Uncomment if needed for CORS
     },
   });
 };

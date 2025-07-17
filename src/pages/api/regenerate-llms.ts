@@ -4,6 +4,10 @@ import { GET as getPages } from "./pages";
 import { createWebflowClient } from "../../utils/webflow/client";
 import { loadExposureSettings } from "../../utils/collection-exposure";
 
+function progressKey() {
+  return `llms-progress:${Date.now()}`;
+}
+
 async function regenerateLLMS(locals: any, request: Request) {
   // Get bindings and env from locals
   const webflowContent = locals.runtime.env.WEBFLOW_CONTENT;
@@ -12,7 +16,7 @@ async function regenerateLLMS(locals: any, request: Request) {
   try {
     // Set initial state
     await webflowContent.put("llms-regenerating", "true");
-    await webflowContent.put("llms-progress", "Initializing...");
+    await webflowContent.put(progressKey(), "Initializing...");
 
     // Load exposure settings
     await loadExposureSettings(exposureSettings);
@@ -42,7 +46,7 @@ async function regenerateLLMS(locals: any, request: Request) {
     await webflowContent.put("llms.txt", initialContent);
 
     // Fetch collections
-    await webflowContent.put("llms-progress", "Fetching collections...");
+    await webflowContent.put(progressKey(), "Fetching collections...");
     const collectionsResponse = await getCollections({
       locals,
       request,
@@ -51,7 +55,7 @@ async function regenerateLLMS(locals: any, request: Request) {
     if (!collectionsResponse.ok) throw new Error("Collections endpoint failed");
 
     // Fetch pages
-    await webflowContent.put("llms-progress", "Fetching pages...");
+    await webflowContent.put(progressKey(), "Fetching pages...");
     const pagesResponse = await getPages({
       locals,
       request,
@@ -60,14 +64,14 @@ async function regenerateLLMS(locals: any, request: Request) {
     if (!pagesResponse.ok) throw new Error("Pages endpoint failed");
 
     // Finalize
-    await webflowContent.put("llms-progress", "Finalizing...");
-    await webflowContent.put("llms-progress", "done");
+    await webflowContent.put(progressKey(), "Finalizing...");
+    await webflowContent.put(progressKey(), "done");
     await webflowContent.put("llms-regenerating", "false");
   } catch (error) {
     console.error("regenerateLLMS error:", error);
     await webflowContent.put("llms-regenerating", "false");
     await webflowContent.put(
-      "llms-progress",
+      progressKey(),
       error instanceof Error
         ? `error: ${error.message}\n${error.stack}`
         : "error: Unknown error"
