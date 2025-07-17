@@ -67,6 +67,19 @@ async function regenerateLLMS(locals: any, request: Request) {
     await webflowContent.put(progressKey(), "Finalizing...");
     await webflowContent.put(progressKey(), "done");
     await webflowContent.put("llms-regenerating", "false");
+
+    // Cleanup old progress keys (keep only the most recent 20)
+    const progressList = await webflowContent.list({
+      prefix: "llms-progress:",
+    });
+    const sortedKeys = progressList.keys
+      .map((k: any) => k.name)
+      .sort()
+      .reverse(); // Most recent first
+    const keysToDelete = sortedKeys.slice(20); // Keep 20 most recent
+    for (const key of keysToDelete) {
+      await webflowContent.delete(key);
+    }
   } catch (error) {
     console.error("regenerateLLMS error:", error);
     await webflowContent.put("llms-regenerating", "false");
