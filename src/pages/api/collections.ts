@@ -217,16 +217,16 @@ function formatCollectionUrl(name: string): string {
     .replace(/\s+/g, "-");
 }
 
-export const GET: APIRoute = async ({ locals }) => {
+export const GET: APIRoute = async ({ locals }: any) => {
   const domain = import.meta.env.PROD
-    ? (locals as any).runtime.env.DOMAIN
+    ? locals.runtime.env.DOMAIN
     : import.meta.env.DOMAIN;
   const basePath = import.meta.env.BASE_URL;
   const siteId = import.meta.env.PROD
-    ? (locals as any).runtime.env.WEBFLOW_SITE_ID
+    ? locals.runtime.env.WEBFLOW_SITE_ID
     : import.meta.env.WEBFLOW_SITE_ID;
   const accessToken = import.meta.env.PROD
-    ? (locals as any).runtime.env.WEBFLOW_SITE_API_TOKEN
+    ? locals.runtime.env.WEBFLOW_SITE_API_TOKEN
     : import.meta.env.WEBFLOW_SITE_API_TOKEN;
   if (!siteId) throw new Error("WEBFLOW_SITE_ID is not defined");
   if (!accessToken) throw new Error("WEBFLOW_SITE_API_TOKEN is not defined");
@@ -335,7 +335,7 @@ export const GET: APIRoute = async ({ locals }) => {
         collectionsContent.push(
           `- [${
             config.displayName || collection.displayName
-          }](https://${domain}/${basePath}/collections/${collectionUrl}.md): ${
+          }](https://${domain}${basePath}/collections/${collectionUrl}.md): ${
             config.description || `Collection with ${items.length} items`
           }`
         );

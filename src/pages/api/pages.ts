@@ -10,12 +10,12 @@ import { processWebflowPage } from "../../services/webflow-content";
 import type { ProcessedPage } from "../../types";
 import { updateLLMSSection } from "../../utils/kv-helpers";
 
-export const GET: APIRoute = async ({ url, locals }) => {
+export const GET: APIRoute = async ({ url, locals }: any) => {
   const siteId = import.meta.env.PROD
-    ? (locals as any).runtime.env.WEBFLOW_SITE_ID
+    ? locals.runtime.env.WEBFLOW_SITE_ID
     : import.meta.env.WEBFLOW_SITE_ID;
   const accessToken = import.meta.env.PROD
-    ? (locals as any).runtime.env.WEBFLOW_SITE_API_TOKEN
+    ? locals.runtime.env.WEBFLOW_SITE_API_TOKEN
     : import.meta.env.WEBFLOW_SITE_API_TOKEN;
   if (!siteId) throw new Error("WEBFLOW_SITE_ID is not defined");
   if (!accessToken) throw new Error("WEBFLOW_SITE_API_TOKEN is not defined");
@@ -24,7 +24,7 @@ export const GET: APIRoute = async ({ url, locals }) => {
   const webflowContent = (locals as any).webflowContent;
   const exposureSettings = (locals as any).exposureSettings;
   const domain = import.meta.env.PROD
-    ? (locals as any).runtime.env.DOMAIN
+    ? locals.runtime.env.DOMAIN
     : import.meta.env.DOMAIN;
   const basePath = import.meta.env.BASE_URL;
 
@@ -99,7 +99,7 @@ export const GET: APIRoute = async ({ url, locals }) => {
           page.seo?.description ||
           page.openGraph?.description ||
           "";
-        const pageEntry = `- [${title}](https://${domain}/${basePath}/docs/${
+        const pageEntry = `- [${title}](https://${domain}${basePath}/docs/${
           processedPage.fileName
         })${description ? ": " + description : ""}`;
 
