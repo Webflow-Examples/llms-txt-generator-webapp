@@ -25,7 +25,7 @@ export const GET: APIRoute = async ({ locals }) => {
           ) {
             break;
           }
-          await new Promise((res) => setTimeout(res, 500));
+          await new Promise((res) => setTimeout(res, 5000));
         }
       } catch (err) {
         const errorMsg = `data: ${JSON.stringify({
