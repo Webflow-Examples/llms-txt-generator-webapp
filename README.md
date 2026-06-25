@@ -2,6 +2,8 @@
 
 A [Webflow Cloud](https://webflow.com/cloud) app that automatically generates `llms.txt` files containing links to markdown pages for live pages and collections on your Webflow site. You can choose which pages and collections to include in your `llms.txt` file.
 
+[![Deploy to Webflow](https://webflow.com/img/deploy-dark.svg)](https://webflow.com/dashboard/cloud/deploy?repo=https://github.com/Webflow-Examples/llms-txt-generator-webapp)
+
 ## Table of contents
 
 1. [Project description](#project-description)
